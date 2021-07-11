@@ -58,46 +58,6 @@ function distance_to_center(p) {
 }
 
 function generate_step() {
-  noiseDetail(1);
-  if(gen_curpoints < num_gen_points) {
-    for (let i = gen_curpoints; i < gen_curpoints+gen_pointstepsize && i < num_gen_points; i++) {
-      let x = random(width);
-      let y = random(height);
-      let dis = dist(x, y, width/2, height/2);
-      dis = dis/(width*1.41);
-      dis = map(dis, 0, 1, 2, 1);
-      let s = width*random(0.1)*random(0.5, 1)*dis;
-      s = width*noise(gen_des+x*gen_det, gen_des+y*gen_det)*dis*random(0.05, 0.2);
-
-      let add = true;
-      for (let j = 0; j < gen_points.length; j++) {
-        let o = gen_points[j];
-        if (dist(x, y, o.x, o.y) < (s+o.z)*0.6) {
-          add = false;
-          break;
-        }
-      }
-
-      if (add) {
-        gen_points.push(createVector(x, y, s));
-        noStroke();
-        fill(255);
-        ellipse(x, y, s, s);
-      }
-      else {
-        // noFill();
-        stroke(50, 50, 50, 20);
-        // point(x, y);
-        // ellipse(x, y, s, s);
-      }
-    }
-    gen_curpoints = gen_curpoints + gen_pointstepsize;
-    if(gen_curpoints >= num_gen_points) {
-      gen_points.sort((a, b) => distance_to_center(a) - distance_to_center(b));
-    }
-    return;
-  }
-
   noiseDetail(4);
   if(gen_curstep1 < num_background_steps) {
     for (let i = gen_curstep1; i < gen_curstep1+gen_backstepsize && i < num_background_steps; i++) {
@@ -122,29 +82,44 @@ function generate_step() {
   }
 
   noiseDetail(1);
+  if(gen_curpoints < num_gen_points) {
+    for (let i = gen_curpoints; i < gen_curpoints+gen_pointstepsize && i < num_gen_points; i++) {
+      let x = random(width);
+      let y = random(height);
+      let dis = dist(x, y, width/2, height/2);
+      dis = dis/(width*1.41);
+      dis = map(dis, 0, 1, 2, 1);
+      let s = width*random(0.1)*random(0.5, 1)*dis;
+      s = width*noise(gen_des+x*gen_det, gen_des+y*gen_det)*dis*random(0.05, 0.2);
+
+      let add = true;
+      for (let j = 0; j < gen_points.length; j++) {
+        let o = gen_points[j];
+        if (dist(x, y, o.x, o.y) < (s+o.z)*0.6) {
+          add = false;
+          break;
+        }
+      }
+
+      if (add) {
+        gen_points.push(createVector(x, y, s));
+        noStroke();
+        fill(180, 180, 190);
+        ellipse(x, y, s, s);
+        fill(170, 170, 180);
+        ellipse(x, y, 2*s/3, 3*s/4);
+      }
+    }
+    gen_curpoints = gen_curpoints + gen_pointstepsize;
+    if(gen_curpoints >= num_gen_points) {
+      gen_points.sort((a, b) => distance_to_center(a) - distance_to_center(b));
+    }
+    return;
+  }
+
   if(gen_curstep2 < gen_points.length) {
     noStroke();
     for (let i = gen_curstep2; i < gen_points.length; i++) {
-      let p = gen_points[i];
-      let lc = lerpColor(gen_back, color(0), random(0.05, 0.15)).levels;
-      fill(lc[0], lc[1], lc[2], 80);
-      let r = p.z*0.5;
-      let res = max(8, int(PI*r));
-      let da = TWO_PI/res;
-      beginShape();
-      for (let j = 0; j < res; j++) {
-        let ang = da*j;
-        let sa = (ang+PI*1.75)%TWO_PI;
-        sa = abs(sa-PI);
-        if (sa < HALF_PI) sa = HALF_PI;
-        let rr = r*(1.2-pow(abs(sin(sa)), 1.5)*0.2);
-        let x = p.x+cos(ang)*rr;
-        let y = p.y+sin(ang)*rr;
-        vertex(x, y);
-      }
-      endShape(CLOSE);
-      // arc2(p.x, p.y, p.z, p.z*1.5, 0, TAU, 0, 20, 0);
-      arc3(p.x, p.y, p.z, p.z*1.5, 0, 20, 0);
     }
     gen_curstep2 = gen_curstep2 + gen_points.length;
     return;
@@ -153,6 +128,29 @@ function generate_step() {
   if(gen_curstep3 < gen_points.length) {
     for (let i = gen_curstep3; i<gen_curstep3+gen_stepsize && i < gen_points.length; i++) {
       let p = gen_points[i];
+      {      
+        let lc = lerpColor(gen_back, color(0), random(0.05, 0.15)).levels;
+        fill(lc[0], lc[1], lc[2], 80);
+        let r = p.z*0.5;
+        let res = max(8, int(PI*r));
+        let da = TWO_PI/res;
+        beginShape();
+        for (let j = 0; j < res; j++) {
+          let ang = da*j;
+          let sa = (ang+PI*1.75)%TWO_PI;
+          sa = abs(sa-PI);
+          if (sa < HALF_PI) sa = HALF_PI;
+          let rr = r*(1.2-pow(abs(sin(sa)), 1.5)*0.2);
+          let x = p.x+cos(ang)*rr;
+          let y = p.y+sin(ang)*rr;
+          vertex(x, y);
+        }
+        endShape(CLOSE);
+        // arc2(p.x, p.y, p.z, p.z*1.5, 0, TAU, 0, 20, 0);
+        arc3(p.x, p.y, p.z, p.z*1.5, 0, 20, 0);
+      }
+
+
       let col = rcol();
       fill(col);
       ellipse(p.x, p.y, p.z, p.z);
