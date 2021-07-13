@@ -1,9 +1,9 @@
 const canvasWidth = 960;
-const canvasHeight = 500;
+const canvasHeight = 960;
 
 let seed = null;
 
-const colorStrings = ["#D81D03", "#101A9D", "#1C7E4E", "#F6A402", "#EFD4BF", "#E2E0EF", "#050400"];
+const colorStrings = ["#f30000", "#021ead", "#017E42", "#ffb504", "#FBEDEC", "#F9F2FC", "#050400"];
 let colors = [];
 
 function setup () {
@@ -47,19 +47,19 @@ function generate() {
   let points = [];
 
   let des = random(1000000);
-  let det = random(0.004, 0.03)/(width*1./960);
+  let det = random(0.004, 0.01)/(width*1./960);
 
   for (let i = 0; i < 3000; i++) {
     let r1 = rcol().levels;
     let r2 = rcol().levels;
     stroke(r1[0], r1[1], r1[2], 80);
-    fill(r1[0], r1[1], r1[2], 240);
+    fill(r2[0], r2[1], r2[2], 240);
     let x = random(width);
     let y = random(height);
     beginShape();
     let dis = width/9.6;
     for (let j = 0; j < dis; j++) {
-      let ang = noise(des+x*det, des+y*det)*TWO_PI;
+      let ang = noise(des+x*det, des+y*det)*TWO_PI-HALF_PI;
       x += cos(ang);
       y += sin(ang);
       vertex(x, y);
@@ -95,7 +95,7 @@ function generate() {
     let lc = lerpColor(back, color(0), random(0.05, 0.15)).levels;
     fill(lc[0], lc[1], lc[2], 80);
     let r = p.z*0.5;
-    let res = max(8, int(PI*r));
+    let res = max(8, int(PI*r*0.4));
     let da = TWO_PI/res;
     beginShape();
     for (let j = 0; j < res; j++) {
@@ -171,7 +171,7 @@ function arc3(x, y, s1, s2, col, shd1, shd2) {
   let s1i = int(s1);
   let s2i = int(s2);
   for(let i=s1i; i<s2i; i++) {
-    let shade = int(0.6 * map(i, s1i, s2i-1, shd1, shd2));
+    let shade = int(map(i, s1i, s2i-1, shd1, shd2));
     // print(shade);
     stroke(col, shade);
     ellipse(x, y, i);
