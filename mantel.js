@@ -159,15 +159,6 @@ function generate_step() {
       arc3(p.x, p.y, p.z, p.z*0.5, 0, 20, 0);
       arc3(p.x+p.z*0.125, p.y-p.z*0.125, p.z*0.0, p.z*0.5, 255, 20, 0);
 
-  /*
-      arc2(p.x, p.y, p.z, p.z*0.0, 0, TAU, 0, 5, 0);
-      arc2(p.x, p.y, p.z, p.z*0.5, 0, TAU, 0, 20, 0);
-      arc2(p.x+p.z*0.125, p.y-p.z*0.125, p.z*0.0, p.z*0.5, 0, TAU, 255, 20, 0);
-  */
-
-      //noiseCircle(p.x, p.y, p.z, p.z*1.2, 255, 70, 0);
-      //noiseCircle(p.x, p.y, p.z, p.z*1.2, 255, 70, 0);
-
       let r = p.z*0.5;
       let pp = [];
       for (let j = 0; j < 800; j++) {
@@ -208,8 +199,6 @@ function draw () {
 }
 
 function mousePressed() {
-  // seed = int(random(999999));
-  // generate();
   generate_setup();
   loop();
 }
