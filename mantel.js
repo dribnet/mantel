@@ -31,8 +31,8 @@ let gen_curstep1 = null;
 let gen_curstep2 = null;
 let gen_curstep3 = null;
 let gen_pointstepsize = 500;
-let gen_backstepsize = 100;
-let gen_stepsize = 5;
+let gen_backstepsize = 200;
+let gen_stepsize = 8;
 
 const num_background_steps = 3000;
 const num_gen_points = 80000;
@@ -156,45 +156,58 @@ function generate_step() {
   	for (let i = gen_curstep3; i<gen_curstep3+gen_stepsize && i < gen_points.length; i++) {
   		let p = gen_points[i];
 
-  		/*
-      arc2(p.x, p.y, p.z, p.z*0.0, 0, TAU, 0, 5, 0);
-      arc2(p.x, p.y, p.z, p.z*0.5, 0, TAU, 0, 20, 0);
-      arc2(p.x+p.z*0.125, p.y-p.z*0.125, p.z*0.0, p.z*0.5, 0, TAU, 255, 20, 0);
-      */
+      	let r = p.z*0.5;
+      	//let pp = [];
 
-      //noiseCircle(p.x, p.y, p.z, p.z*1.2, 255, 70, 0);
-      //noiseCircle(p.x, p.y, p.z, p.z*1.2, 255, 70, 0);
+      	let n = 200;
+      	let angle = PI*(3.0-sqrt(5.0)); //137.5 in radians
+		for (let i = 0; i < n; i++) {
+			let d = (r*0.94)*sqrt((i*1.0+random(-0.5, 0.5))/n);
+			let theta = i*angle+random(-0.02, 0.02);
+			let x = p.x + d * cos(theta);
+			let y = p.y + d * sin(theta);
 
-      let r = p.z*0.5;
-      let pp = [];
-      for (let j = 0; j < 800; j++) {
-      	let ang = random(TWO_PI);
-      	let dis = acos(random(PI));
-      	let x =  cos(ang)*dis*(r*0.6);
-      	let y =  sin(ang)*dis*(r*0.6);
-      	let ss = r*random(0.04, 0.1);
+			if(random(1) < 0.7){
+	      		let ss = r*random(0.04, 0.1);
 
-      	let add = true;
-      	for (let k = 0; k < pp.length; k++) {
-      		let o = pp[k];
-      		if (dist(x, y, o.x, o.y) < (ss+o.z)*0.5) {
-      			add = false;
-      			break;
-      		}
-      	}
 
-      	if (add) {
-      		pp.push(createVector(x, y, ss));
+	      		if(ss > 2){
+	      			fill(0, 120);
+	      			arc(x, y, ss, ss*1.6, 0, PI);
+	      		}
 
-      		if(ss > 2){
-      			fill(0, 120);
-      			arc(p.x+x, p.y+y, ss, ss*1.6, 0, PI);
-      		}
+				fill(rcol());
+				ellipse(x, y, ss, ss);
+			}
+		}
+      	/*
+      	for (let j = 0; j < 800; j++) {
+	      	let ang = random(TWO_PI);
+	      	let dis = acos(random(PI));
+	      	let x =  cos(ang)*dis*(r*0.6);
+	      	let y =  sin(ang)*dis*(r*0.6);
+	      	let ss = r*random(0.04, 0.1);
 
-      		fill(rcol());
-      		ellipse(p.x+x, p.y+y, ss, ss);
-      	}
-      }
+	      	let add = true;
+	      	for (let k = 0; k < pp.length; k++) {
+	      		let o = pp[k];
+	      		if (dist(x, y, o.x, o.y) < (ss+o.z)*0.5) {
+	      			add = false;
+	      			break;
+	      		}
+	      	}
+
+	      	if (add) {
+	      		pp.push(createVector(x, y, ss));
+	      		if(ss > 2){
+	      			fill(0, 120);
+	      			arc(p.x+x, p.y+y, ss, ss*1.6, 0, PI);
+	      		}
+	      		fill(rcol());
+	      		ellipse(p.x+x, p.y+y, ss, ss);
+	     	}
+     	}
+     	*/
     }
     gen_curstep3 = gen_curstep3 + gen_stepsize;
     return;
