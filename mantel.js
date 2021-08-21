@@ -1,5 +1,6 @@
 const canvasWidth = 960;
 const canvasHeight = 960;
+// const canvasHeight = 540;
 
 let seed = null;
 
@@ -14,12 +15,11 @@ function setup () {
   pixelDensity(2);
   strokeWeight(3);
 
-  seed = int(random(999999));
   for(let i=0; i<colorStrings.length; i++) {
     colors.push(color(colorStrings[i]))
   }
 
-  generate_setup();
+  generate_setup(int(random(999999)));
 }
 
 let gen_back = null;
@@ -30,14 +30,18 @@ let gen_curpoints = null;
 let gen_curstep1 = null;
 let gen_curstep2 = null;
 let gen_curstep3 = null;
-let gen_pointstepsize = 500;
+let gen_pointstepsize = 500*5;
 let gen_backstepsize = 200;
 let gen_stepsize = 8;
 
 const num_background_steps = 3000;
 const num_gen_points = 80000;
+const gen_points_gestation = 300;
+let last_birthday = 0;
 
-function generate_setup() {
+function generate_setup(newseed) {
+  seed = newseed;
+
   randomSeed(seed);
   noiseSeed(seed);
 
@@ -45,6 +49,7 @@ function generate_setup() {
   background(gen_back);
 
   gen_points = [];
+  gen_points_birth_info = [];
   gen_des = random(1000000);
   gen_det = random(0.004, 0.01)/(width*1./960);
 
@@ -60,6 +65,86 @@ function distance_to_center(p) {
   let dx = Math.abs(p.x - width/2);
   let dy = Math.abs(p.y - height/2);
   return dx + dy;
+}
+
+// These two "Serp" functions copied almost verbatium from acu :-)
+function acuSerpf(t, a, b) {
+  let factor;
+  if(t<0.5) factor = 2.0 * t * t;
+  else factor = 1 - 2.0 * (1.0 - t) * (1.0 - t);
+  return (a + factor * (b - a));
+}
+
+function acuSerpMapf(begin, cur, end, a, b) {
+  let t = (cur-begin) / (end-begin);
+  // print(t);
+  if (t<=0) {
+    return a;
+  }
+  else if (t>=1) {
+    return b;
+  }
+  else {
+    return acuSerpf(t, a, b);
+  }
+}
+
+function draw_gen_point(birth_record, cur_birthday) {
+  let birthday = birth_record["birthday"];
+  let lc = birth_record["lc"];
+  let r = birth_record["r"];
+  let res = birth_record["res"];
+  let da = birth_record["da"];
+  let p = birth_record["p"];
+  let col = birth_record["col"]
+
+  // print(birthday, cur_birthday)
+
+  // check if we will be done gestating
+  if (cur_birthday > birthday + gen_points_gestation) {
+    birth_record["gestating"] = false;
+  }
+
+  // growth!
+  let cur_pz = acuSerpMapf(birthday, cur_birthday, birthday + gen_points_gestation, 0, p.z);
+
+  // to see the difference the easing makes, uncomment this
+  // cur_pz = map(cur_birthday, birthday, birthday + gen_points_gestation, 0, p.z);
+
+  // or if you want to just pop everything in at once, do this
+  // cur_pz = p.z;
+  // birth_record["gestating"] = false;
+
+  noStroke();
+  if (birth_record["gestating"] == false) {
+    // drop shadown at end (because of alpha)
+    fill(lc[0], lc[1], lc[2], 80);
+    beginShape();
+    for (let j = 0; j < res; j++) {
+      let ang = da*j;
+      let sa = (ang+PI*1.75)%TWO_PI;
+      sa = abs(sa-PI);
+      if (sa < HALF_PI) sa = HALF_PI;
+      let rr = r*(1.2-pow(abs(sin(sa)), 1.5)*0.2);
+      let x = p.x+cos(ang)*rr;
+      let y = p.y+sin(ang)*rr;
+      vertex(x, y);
+    }
+    endShape(CLOSE);
+
+    // arc2(p.x, p.y, p.z, p.z*1.5, 0, TAU, 0, 20, 0);
+    arc3(p.x, p.y, cur_pz, cur_pz*1.5, 0, 20, 0);
+  }
+
+  fill(col);
+  // this is all that happens if gestating
+  ellipse(p.x, p.y, cur_pz, cur_pz);
+
+  if (birth_record["gestating"] == false) {
+    arc3(p.x, p.y, cur_pz, cur_pz*0.0, 0, 5, 0);
+    arc3(p.x, p.y, cur_pz, cur_pz*0.5, 0, 20, 0);
+    arc3(p.x+cur_pz*0.125, p.y-cur_pz*0.125, cur_pz*0.0, cur_pz*0.5, 255, 20, 0);
+  }
 }
 
 function generate_step() {
@@ -89,8 +174,24 @@ function generate_step() {
   }
 
   noiseDetail(1);
-  if(gen_curpoints < num_gen_points) {
-    for (let i = gen_curpoints; i < gen_curpoints+gen_pointstepsize && i < num_gen_points; i++) {
+  cur_birthday = millis();
+  let cur_num_gen_points = gen_points.length;
+  if (cur_num_gen_points > 0) {
+    last_birthday = gen_points_birth_info[cur_num_gen_points-1]["birthday"];
+    // print("last birthday ", last_birthday);
+  }
+  if(gen_curpoints < num_gen_points || cur_birthday < last_birthday + gen_points_gestation) {
+    // grow during gestation
+    for (let i = 0; i < cur_num_gen_points; i++) {
+        let o = gen_points[i];
+        let bi = gen_points_birth_info[i];
+        // print(o, bi, cur_num_gen_points, gen_points.length);
+        if (bi["gestating"]) {
+          draw_gen_point(bi, cur_birthday);
+        }
+    }
+    let cur_gen_pointstepsize = int(map(gen_curpoints, 0, num_gen_points, 12, gen_pointstepsize));
+    for (let i = gen_curpoints; i < gen_curpoints+cur_gen_pointstepsize && i < num_gen_points; i++) {
       let x = random(width);
       let y = random(height);
       let dis = dist(x, y, width/2, height/2);
@@ -111,13 +212,27 @@ function generate_step() {
       if (add) {
         let p = createVector(x, y, s);
         gen_points.push(p);
-
         let lc = lerpColor(gen_back, color(0), random(0.05, 0.15)).levels;
-        fill(lc[0], lc[1], lc[2], 80);
-        noStroke();
         let r = p.z*0.5;
         let res = max(8, int(PI*r)*0.4);
         let da = TWO_PI/res;
+        let col = rcol();
+
+        let birth_info = {
+          "birthday": cur_birthday,
+          "lc": lc,
+          "r": r,
+          "res": res,
+          "da": da,
+          "p": p,
+          "col": col,
+          "gestating": true
+        };
+        gen_points_birth_info.push(birth_info);
+        // draw_gen_point(birth_info, cur_birthday);
+/*
+        fill(lc[0], lc[1], lc[2], 80);
+        noStroke();
         beginShape();
         for (let j = 0; j < res; j++) {
           let ang = da*j;
@@ -140,9 +255,10 @@ function generate_step() {
         arc3(p.x, p.y, p.z, p.z*0.0, 0, 5, 0);
         arc3(p.x, p.y, p.z, p.z*0.5, 0, 20, 0);
         arc3(p.x+p.z*0.125, p.y-p.z*0.125, p.z*0.0, p.z*0.5, 255, 20, 0);
+*/
       }
     }
-    gen_curpoints = gen_curpoints + gen_pointstepsize;
+    gen_curpoints = gen_curpoints + cur_gen_pointstepsize;
     if(gen_curpoints >= num_gen_points) {
       gen_points.sort((a, b) => distance_to_center(a) - distance_to_center(b));
     }
@@ -151,15 +267,16 @@ function generate_step() {
 
   if(gen_curstep2 < gen_points.length) {
     noStroke();
-    for (let i = gen_curstep2; i < gen_points.length; i++) {
-    }
+    // for (let i = gen_curstep2; i < gen_points.length; i++) {
+    //   //?
+    // }
     gen_curstep2 = gen_curstep2 + gen_points.length;
     return;
   }
 
   if(gen_curstep3 < gen_points.length) {
     for (let i = gen_curstep3; i<gen_curstep3+gen_stepsize && i < gen_points.length; i++) {
-    let p = gen_points[i];
+      let p = gen_points[i];
 
       let r = p.z*0.5;
       //let pp = [];
@@ -172,7 +289,7 @@ function generate_step() {
         let x = p.x + d * cos(theta);
         let y = p.y + d * sin(theta);
 
-        if(random(1) < 0.7){
+        if(random(1) < 0.7) {
               let ss = r*random(0.04, 0.1);
 
 
@@ -190,7 +307,7 @@ function generate_step() {
     return;
   }
   noLoop();
-  print("drawing complete :-) [seed was " + seed + ']');
+  print("drawing complete :-) (" + seed + ')');
 }
 
 function draw () {
@@ -198,8 +315,8 @@ function draw () {
 }
 
 function mousePressed() {
-  seed = int(random(999999));
-  generate_setup();
+  generate_setup(int(random(999999)));
+  loop();
 }
 
 function keyTyped() {
@@ -208,8 +325,11 @@ function keyTyped() {
   }
   else if (key == '1') {
     // tom's seed
-    seed = 989710;
-    generate_setup();
+    generate_setup(989710);
+  }
+  else if (key == '2') {
+    // another tom seed
+    generate_setup(191991);
   }
 }
 
