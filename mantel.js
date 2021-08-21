@@ -38,6 +38,9 @@ const num_background_steps = 3000;
 const num_gen_points = 80000;
 
 function generate_setup() {
+  randomSeed(seed);
+  noiseSeed(seed);
+
 	gen_back = rcol();
 	background(gen_back);
 
@@ -49,6 +52,8 @@ function generate_setup() {
 	gen_curstep1 = 0;
 	gen_curstep2 = 0;
 	gen_curstep3 = 0;
+
+  loop();
 }
 
 function distance_to_center(p) {
@@ -213,6 +218,7 @@ function generate_step() {
     return;
   }
   noLoop();
+  print("drawing complete :-) [seed was " + seed + ']');
 }
 
 function draw () {
@@ -220,18 +226,18 @@ function draw () {
 }
 
 function mousePressed() {
-  // seed = int(random(999999));
-  // generate();
+  seed = int(random(999999));
   generate_setup();
-  loop();
 }
 
 function keyTyped() {
 	if (key == '!') {
 		saveBlocksImages();
 	}
-	else if (key == '@') {
-		saveBlocksImages(true);
+	else if (key == '1') {
+    // tom's seed
+		seed = 989710;
+    generate_setup();
 	}
 }
 
