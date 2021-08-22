@@ -319,10 +319,12 @@ function draw () {
 }
 
 function mousePressed() {
-  generate_setup(int(random(999999)));
+  if(mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+    generate_setup(int(random(999999)));
+  }
 }
 
-// just some nice refrence seeds tom saved
+// just some nice reference seeds tom saved
 const saved_seeds = {
   '1': 989710,
   '2': 191991,
