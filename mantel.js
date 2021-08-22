@@ -40,8 +40,10 @@ const gen_points_gestation = 300;
 let last_birthday = 0;
 let drawn_steps = 0;
 
-function generate_setup(newseed) {
-  seed = newseed;
+function generate_setup(newseed=null) {
+  if(newseed !== null) {
+    seed = newseed;
+  }
 
   randomSeed(seed);
   noiseSeed(seed);
@@ -342,8 +344,20 @@ function keyTyped() {
   if (key == '!') {
     saveBlocksImages();
   }
+  else if (key == '`') {
+    generate_setup();
+  }
   else if (key in saved_seeds) {
     generate_setup(saved_seeds[key]);
+  }
+  else if (key == 'Enter') {
+    generate_setup(int(random(999999)));
+  }
+  else if (key >= 'a' && key <= 'z') {
+    // load a special seed for that key
+    // this silly formula make better seeds for the weak rng
+    let key_seed = (30161 * key.charCodeAt(0)) % 1000000;
+    generate_setup(key_seed);
   }
 }
 
