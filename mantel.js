@@ -38,6 +38,7 @@ const num_background_steps = 3000;
 const num_gen_points = 80000;
 const gen_points_gestation = 300;
 let last_birthday = 0;
+let drawn_steps = 0;
 
 function generate_setup(newseed) {
   seed = newseed;
@@ -57,6 +58,8 @@ function generate_setup(newseed) {
   gen_curstep1 = 0;
   gen_curstep2 = 0;
   gen_curstep3 = 0;
+
+  drawn_steps = 0;
 
   loop();
 }
@@ -148,6 +151,7 @@ function draw_gen_point(birth_record, cur_birthday) {
 }
 
 function generate_step() {
+  drawn_steps = drawn_steps + 1;
 
   noiseDetail(4);
   if(gen_curstep1 < num_background_steps) {
@@ -307,7 +311,7 @@ function generate_step() {
     return;
   }
   noLoop();
-  print("drawing complete :-) (" + seed + ')');
+  print("done! (seed:" + seed + ', steps:' + drawn_steps + ')');
 }
 
 function draw () {
@@ -316,20 +320,28 @@ function draw () {
 
 function mousePressed() {
   generate_setup(int(random(999999)));
-  loop();
 }
+
+// just some nice refrence seeds tom saved
+const saved_seeds = {
+  '1': 989710,
+  '2': 191991,
+  '3': 524366,
+  '4': 312589
+}
+
+// alias for generate setup
+function run(seed=saved_seeds['1']) {
+  generate_setup(seed);
+}
+
 
 function keyTyped() {
   if (key == '!') {
     saveBlocksImages();
   }
-  else if (key == '1') {
-    // tom's seed
-    generate_setup(989710);
-  }
-  else if (key == '2') {
-    // another tom seed
-    generate_setup(191991);
+  else if (key in saved_seeds) {
+    generate_setup(saved_seeds[key]);
   }
 }
 
