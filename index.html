@@ -1,17 +1,44 @@
 <head>
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@dribnet">
+<meta name="twitter:creator" content="@dribnet">
+<meta name="twitter:title" content="Mantel generator by Manolo Gamboa Naon (2018)">
+<meta name="twitter:description" content="A port of the generator used for Manolo Gamboa Naon's Mantel from processing to p5.js.">
+<meta name="twitter:image" content="https://dribnet.github.io/mantel/mantel.gif">
+<meta name="twitter:image:alt" content="Screenshot showing Mantel generator output">
+
     <script language="javascript" type="text/javascript" src="p5_1.3.1.js"></script>
     <script language="javascript" type="text/javascript" src="z_purview_helper.js"></script>    
     <script language="javascript" type="text/javascript" src="mantel.js"></script>
+
     <style>
-        body   { padding: 0; margin: 0; }
+        body {padding: 30; margin: 30; font-family: Sans-Serif;
+        	font-size:1.8vmin;
+        	background-color:white;}
+		h1,h3,.outer {text-align: center;}
     </style>
 </head>
-<body style="background-color:WhiteSmoke;">
+<body>
+  <h1>Mantel generator by Manolo Gamboa Naon (2018)</h1>
+  <h3>[2021 p5js port by @dribnet]</h3>
+
     <div class="outer">
         <div class="inner">
-            <div id="canvasContainer"></div>
+            <div id="sewnContainer"></div>
         </div>
+	<p>(mouse press restarts the program)
     </div>
-    <a href="classic.html">classic version (draws all at once)</a>
-<br>
+<p>
+<hr>
+<p>
+<h2>About</h2>
+
+A port of the generator used for <a href="https://www.behance.net/gallery/62172035/mantel">Manolo Gamboa Naon's Mantel</a> from processing to p5.js.  Original processing version is taken from <a href="https://github.com/manoloide/AllSketchs/tree/master/2018/Generativos/mantel">Manolide's github repository<a> and is also archived here.
+
+There initial port that resulted directly from the original processing code produced the version in classic.html / mantel1.js. Subsequent revisions were done by @dribnet so that the screen shows the drawing being built up incrementally. Manoloide also provided feedback and guidance and the repo also includes the commit history of his changes.
+
+This online version is a restoration port by <a href="https://twitter.com/dribnet">@dribnet</a>. The original code and both ports can be found in <a href="https://github.com/dribnet/mantel">the accompaning github repository</a>.<p>
+
+<p>
+
 </body>
