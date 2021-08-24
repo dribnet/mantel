@@ -326,6 +326,10 @@ function mousePressed() {
   }
 }
 
+function touchStarted() {
+  mousePressed();
+}
+
 // just some nice reference seeds tom saved
 const saved_seeds = {
   '1': 989710,
